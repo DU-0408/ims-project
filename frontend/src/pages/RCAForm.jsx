@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import client from "../api/client";
+import Toast from "../components/Toast";
+import useToast from "../components/useToast";
 
 const ROOT_CAUSE_CATEGORIES = [
   "Network Failure", "Database Corruption", "Cache Eviction",
@@ -32,12 +34,13 @@ export default function RCAForm() {
     fix_applied: "",
     prevention_steps: "",
   });
+  const { toast, showToast, hideToast } = useToast();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async () => {
     if (!form.incident_start || !form.incident_end || !form.root_cause_category || !form.fix_applied || !form.prevention_steps) {
-      alert("All fields are required.");
+      showToast("All fields are required.", "warning");
       return;
     }
     setSubmitting(true);
@@ -47,10 +50,10 @@ export default function RCAForm() {
         incident_start: new Date(form.incident_start).toISOString(),
         incident_end: new Date(form.incident_end).toISOString(),
       });
-      alert(`RCA submitted successfully. MTTR: ${res.data.mttr_minutes} minutes`);
+      showToast(`RCA submitted. MTTR: ${res.data.mttr_minutes} minutes`, "success");
       navigate(`/incidents/${id}`);
     } catch (err) {
-      alert(err.response?.data?.detail || "RCA submission failed");
+      showToast(err.response?.data?.detail || "RCA submission failed", "error");
     } finally {
       setSubmitting(false);
     }
@@ -135,6 +138,7 @@ export default function RCAForm() {
           </button>
         </div>
       </div>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
     </div>
   );
 }

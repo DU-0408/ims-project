@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import client from "../api/client";
 import { StatusBadge, PriorityBadge } from "../components/StatusBadge";
+import Toast from "../components/Toast";
+import useToast from "../components/useToast";
 
 export default function IncidentDetail() {
   const { id } = useParams();
@@ -9,6 +11,7 @@ export default function IncidentDetail() {
   const [incident, setIncident] = useState(null);
   const [loading, setLoading] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
+  const { toast, showToast, hideToast } = useToast();
 
   const fetchIncident = async () => {
     try {
@@ -27,7 +30,7 @@ export default function IncidentDetail() {
       await client.patch(`/incidents/${id}/status`, { status: "next" });
       await fetchIncident();
     } catch (err) {
-      alert(err.response?.data?.detail || "Transition failed");
+      showToast(err.response?.data?.detail || "Transition failed", "warning");
     } finally {
       setTransitioning(false);
     }
@@ -121,6 +124,7 @@ export default function IncidentDetail() {
           </div>
         )}
       </div>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
     </div>
   );
 }
