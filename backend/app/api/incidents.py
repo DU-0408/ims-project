@@ -86,7 +86,7 @@ async def update_status(
         raise HTTPException(status_code=404, detail="Incident not found")
 
     # Fetch RCA if exists (needed for CLOSED validation)
-    rca_result = await db.execute(select(RCA).where(RCA.work_item_id == incident_id))
+    rca_result = await db.execute(select(RCA).where(RCA.work_item_id == incident_id).limit(1))
     rca = rca_result.scalar_one_or_none()
     rca_dict = {
         "root_cause_category": rca.root_cause_category,

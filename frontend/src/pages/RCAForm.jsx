@@ -51,7 +51,7 @@ export default function RCAForm() {
         incident_end: new Date(form.incident_end).toISOString(),
       });
       showToast(`RCA submitted. MTTR: ${res.data.mttr_minutes} minutes`, "success");
-      navigate(`/incidents/${id}`);
+      setTimeout(() => navigate(`/incidents/${id}`), 2000);
     } catch (err) {
       showToast(err.response?.data?.detail || "RCA submission failed", "error");
     } finally {
