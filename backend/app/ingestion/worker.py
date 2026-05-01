@@ -4,6 +4,7 @@ from app.ingestion.queue import signal_queue
 from app.core.database import signals_collection, redis_client, AsyncSessionLocal
 from app.models.postgres_models import WorkItem, PriorityEnum
 from app.workflow.alerting import AlertContext, get_strategy
+from sqlalchemy import update
 import uuid
 
 # Throughput counter
@@ -30,11 +31,18 @@ async def process_signal(signal: dict):
     existing_work_item_id = await redis_client.get(debounce_key)
 
     if existing_work_item_id:
-        # Already have a work item — just increment signal count
-        await signals_collection.update_one(
-            {"work_item_id": existing_work_item_id},
-            {"$inc": {"signal_count": 1}}
-        )
+        # Insert the raw signal into MongoDB (every signal gets stored)
+        signal["work_item_id"] = existing_work_item_id
+        await signals_collection.insert_one(signal)
+
+        # Increment signal count on the work item in PostgreSQL
+        async with AsyncSessionLocal() as session:
+            await session.execute(
+                update(WorkItem)
+                .where(WorkItem.id == existing_work_item_id)
+                .values(signal_count=WorkItem.signal_count + 1)
+            )
+            await session.commit()
         return
 
     # --- No existing work item — create one in PostgreSQL ---
@@ -56,11 +64,9 @@ async def process_signal(signal: dict):
     # Set debounce key with 10 second TTL
     await redis_client.setex(debounce_key, 10, work_item_id)
 
-    # Update signal in MongoDB with work_item_id
-    await signals_collection.update_one(
-        {"_id": signal.get("_id")},
-        {"$set": {"work_item_id": work_item_id}}
-    )
+    # Insert first signal into MongoDB WITH work_item_id already set
+    signal["work_item_id"] = work_item_id
+    await signals_collection.insert_one(signal)
 
     # Fire alert strategy
     strategy = get_strategy(priority)

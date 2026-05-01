@@ -128,14 +128,14 @@ async def submit_rca(
         raise HTTPException(status_code=400, detail="RCA is incomplete. All fields are required.")
 
     # Calculate MTTR
-    mttr_minutes = (payload.incident_end - payload.incident_start).total_seconds() / 60
+    mttr_minutes = (payload.incident_end.replace(tzinfo=None) - payload.incident_start.replace(tzinfo=None)).total_seconds() / 60
 
     # Save RCA
     rca = RCA(
         id=uuid.uuid4(),
         work_item_id=incident_id,
-        incident_start=payload.incident_start,
-        incident_end=payload.incident_end,
+        incident_start=payload.incident_start.replace(tzinfo=None),
+        incident_end=payload.incident_end.replace(tzinfo=None),
         root_cause_category=payload.root_cause_category,
         fix_applied=payload.fix_applied,
         prevention_steps=payload.prevention_steps,

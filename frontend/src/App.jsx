@@ -1,122 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import IncidentDetail from "./pages/IncidentDetail";
+import RCAForm from "./pages/RCAForm";
+import "./index.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <BrowserRouter>
+      <div style={{ minHeight: "100vh", backgroundColor: "#080C14", color: "#E2E8F0", fontFamily: "'DM Mono', 'Courier New', monospace" }}>
+        <header style={{ borderBottom: "1px solid #1E2D45", padding: "0 32px", height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "#080C14", position: "sticky", top: 0, zIndex: 100 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#EF4444", boxShadow: "0 0 8px #EF4444", animation: "pulse 2s infinite" }} />
+            <span style={{ fontSize: "13px", fontWeight: "600", letterSpacing: "0.15em", textTransform: "uppercase", color: "#94A3B8" }}>IMS</span>
+            <span style={{ color: "#1E2D45" }}>|</span>
+            <span style={{ fontSize: "13px", color: "#64748B", letterSpacing: "0.05em" }}>Incident Management System</span>
+          </div>
+          <div style={{ fontSize: "11px", color: "#334155", letterSpacing: "0.1em" }}>
+            LIVE
+          </div>
+        </header>
+        <main style={{ padding: "32px", maxWidth: "1400px", margin: "0 auto" }}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/incidents/:id" element={<IncidentDetail />} />
+            <Route path="/incidents/:id/rca" element={<RCAForm />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
