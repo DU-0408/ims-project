@@ -8,23 +8,10 @@
 
 ## Architecture Diagram
 
-```mermaid
-flowchart TD
-    A[Signal Producer / Seed Script] -->|POST /api/v1/signals| B[FastAPI Ingestion Layer]
-    B -->|Enqueue immediately| C[asyncio In-Memory Queue]
-    C -->|Background Worker drains queue| D{Debounce Check Redis}
-    D -->|Key exists - duplicate signal| E[MongoDB - Raw Signals]
-    D -->|Key not found - new incident| F[PostgreSQL - Work Items]
-    D --> E
-    F -->|Set debounce key TTL 10s| G[Redis Cache]
-    F -->|Fire alert strategy| H[Alert Engine P0 / P1 / P2]
-    G -->|Dashboard state cache| I[React Frontend]
-    I -->|GET /api/v1/incidents| J[Redis Hot Cache]
-    J -->|Cache miss| F
-    I -->|PATCH status| F
-    I -->|POST RCA| F
-    F -->|MTTR Calculation| F
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagram-dark.png">
+  <img alt="Architecture Diagram" src="docs/diagram-light.png">
+</picture>
 
 ---
 
