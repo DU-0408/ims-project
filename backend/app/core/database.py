@@ -16,7 +16,12 @@ async def get_db():
         yield session
 
 # --- MongoDB ---
-mongo_client = AsyncIOMotorClient(settings.MONGO_URL)
+mongo_client = AsyncIOMotorClient(
+    settings.MONGO_URL,
+    serverSelectionTimeoutMS=3000,
+    connectTimeoutMS=3000,
+    socketTimeoutMS=3000,
+)
 mongo_db = mongo_client[settings.MONGO_DB]
 signals_collection = mongo_db["raw_signals"]
 
