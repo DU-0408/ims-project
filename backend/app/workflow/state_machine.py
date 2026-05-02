@@ -37,7 +37,13 @@ def get_next_status(current_status: str, rca: dict = None) -> str:
 
     # Guard: cannot close without RCA
     if next_status == "CLOSED":
-        if not rca or not rca.get("root_cause_category") or not rca.get("fix_applied"):
+        if (
+            not rca
+            or not rca.get("root_cause_category")
+            or not rca.get("fix_applied")
+            or rca.get("root_cause_category").strip() == ""
+            or rca.get("fix_applied").strip() == ""
+        ):
             raise ValueError("Cannot close incident: RCA is missing or incomplete")
 
     return next_status
