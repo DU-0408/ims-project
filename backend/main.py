@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from app.core.dependencies import get_current_user
 from app.core.database import engine, Base
 from app.ingestion.worker import worker_loop, metrics_loop
-from app.api import signals, incidents, health, auth
+from app.api import signals, incidents, health, auth, websocket
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -58,3 +58,4 @@ app.include_router(
     prefix="/api/v1",
     dependencies=[Depends(get_current_user)]
 )
+app.include_router(websocket.router)

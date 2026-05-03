@@ -6,6 +6,7 @@ from datetime import datetime
 from app.core.database import get_db, redis_client, signals_collection
 from app.models.postgres_models import WorkItem, RCA, StatusEnum
 from app.workflow.state_machine import get_next_status
+from app.core.websocket_manager import manager
 import json
 import uuid
 
@@ -107,6 +108,13 @@ async def update_status(
 
     # Invalidate cache
     await redis_client.delete("dashboard:incidents")
+
+    # Broadcast status change
+    await manager.broadcast({
+        "type": "STATUS_UPDATED",
+        "incident_id": incident_id,
+        "new_status": next_status
+    })
 
     return {"id": incident_id, "new_status": next_status}
 

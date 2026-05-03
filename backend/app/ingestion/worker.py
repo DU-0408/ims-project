@@ -8,6 +8,7 @@ from sqlalchemy import update
 from app.core.retry import with_retry
 from pymongo.errors import ServerSelectionTimeoutError, AutoReconnect
 import uuid
+from app.core.websocket_manager import manager
 
 # Throughput counter
 signal_counter = {"count": 0}
@@ -86,6 +87,14 @@ async def process_signal(signal: dict):
 
     # Invalidate Redis dashboard cache
     await redis_client.delete("dashboard:incidents")
+
+    # Broadcast new incident to all connected WebSocket clients
+    await manager.broadcast({
+        "type": "NEW_INCIDENT",
+        "component_id": component_id,
+        "priority": str(priority).replace("PriorityEnum.", ""),
+        "work_item_id": work_item_id
+    })
 
 
 async def worker_loop():
