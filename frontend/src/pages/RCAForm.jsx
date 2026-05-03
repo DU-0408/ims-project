@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import client from "../api/client";
 import Toast from "../components/Toast";
 import useToast from "../components/useToast";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const ROOT_CAUSE_CATEGORIES = [
   "Network Failure", "Database Corruption", "Cache Eviction",
@@ -13,14 +15,17 @@ const ROOT_CAUSE_CATEGORIES = [
 const fieldStyle = {
   width: "100%",
   padding: "10px 14px",
-  backgroundColor: "#0D1521",
+  backgroundColor: "rgba(13, 21, 33, 0.8)",
+  backdropFilter: "blur(8px)",
+  WebkitBackdropFilter: "blur(8px)",
   border: "1px solid #1E2D45",
   borderRadius: "6px",
   color: "#94A3B8",
   fontSize: "13px",
   fontFamily: "'DM Mono', monospace",
   outline: "none",
-  transition: "border-color 0.15s",
+  transition: "all 0.2s ease",
+  boxSizing: "border-box",
 };
 
 export default function RCAForm() {
@@ -28,8 +33,8 @@ export default function RCAForm() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    incident_start: "",
-    incident_end: "",
+    incident_start: null,
+    incident_end: null,
     root_cause_category: "",
     fix_applied: "",
     prevention_steps: "",
@@ -47,8 +52,8 @@ export default function RCAForm() {
     try {
       const res = await client.post(`/incidents/${id}/rca`, {
         ...form,
-        incident_start: new Date(form.incident_start).toISOString(),
-        incident_end: new Date(form.incident_end).toISOString(),
+        incident_start: form.incident_start.toISOString(),
+        incident_end: form.incident_end.toISOString(),
       });
       showToast(`RCA submitted. MTTR: ${res.data.mttr_minutes} minutes`, "success");
       setTimeout(() => navigate(`/incidents/${id}`), 2000);
@@ -64,6 +69,33 @@ export default function RCAForm() {
   );
 
   return (
+    <div style={{ animation: "fadeIn 0.3s ease", maxWidth: "720px", position: "relative" }}>
+    {/* Ambient background glow */}
+    <div style={{
+      position: "fixed",
+      top: "20%",
+      left: "30%",
+      width: "400px",
+      height: "400px",
+      backgroundColor: "#3B82F610",
+      borderRadius: "50%",
+      filter: "blur(80px)",
+      pointerEvents: "none",
+      zIndex: 0,
+    }} />
+    <div style={{
+      position: "fixed",
+      bottom: "20%",
+      right: "20%",
+      width: "300px",
+      height: "300px",
+      backgroundColor: "#EF444408",
+      borderRadius: "50%",
+      filter: "blur(60px)",
+      pointerEvents: "none",
+      zIndex: 0,
+    }} />
+    <div style={{ position: "relative", zIndex: 1 }}></div>
     <div style={{ animation: "fadeIn 0.3s ease", maxWidth: "720px" }}>
       <button
         onClick={() => navigate(`/incidents/${id}`)}
@@ -77,23 +109,57 @@ export default function RCAForm() {
         <p style={{ fontSize: "13px", color: "#475569" }}>Complete all fields to close the incident and calculate MTTR.</p>
       </div>
 
-      <div style={{ backgroundColor: "#0D1521", border: "1px solid #1E2D45", borderRadius: "8px", padding: "28px", display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div style={{ 
+        backgroundColor: "rgba(13, 21, 33, 0.85)", 
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: "1px solid #1E2D45", 
+        borderRadius: "8px", 
+        padding: "28px", 
+        display: "flex", 
+        flexDirection: "column", 
+        gap: "24px",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05)"
+      }}>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <div>
             <Label>Incident Start</Label>
-            <input type="datetime-local" name="incident_start" value={form.incident_start} onChange={handleChange}
-              style={fieldStyle}
-              onFocus={e => e.target.style.borderColor = "#3B82F6"}
-              onBlur={e => e.target.style.borderColor = "#1E2D45"}
+            <DatePicker
+              selected={form.incident_start}
+              onChange={(date) => setForm({ ...form, incident_start: date })}
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+              dateFormat="MMM d, yyyy HH:mm"
+              placeholderText="Select start date & time"
+              customInput={
+                <input
+                  style={fieldStyle}
+                  onFocus={e => e.target.style.borderColor = "#3B82F6"}
+                  onBlur={e => e.target.style.borderColor = "#1E2D45"}
+                />
+              }
             />
           </div>
           <div>
             <Label>Incident End</Label>
-            <input type="datetime-local" name="incident_end" value={form.incident_end} onChange={handleChange}
-              style={fieldStyle}
-              onFocus={e => e.target.style.borderColor = "#3B82F6"}
-              onBlur={e => e.target.style.borderColor = "#1E2D45"}
+            <DatePicker
+              selected={form.incident_end}
+              onChange={(date) => setForm({ ...form, incident_end: date })}
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+              dateFormat="MMM d, yyyy HH:mm"
+              placeholderText="Select end date & time"
+              minDate={form.incident_start}
+              customInput={
+                <input
+                  style={fieldStyle}
+                  onFocus={e => e.target.style.borderColor = "#3B82F6"}
+                  onBlur={e => e.target.style.borderColor = "#1E2D45"}
+                />
+              }
             />
           </div>
         </div>
@@ -139,6 +205,7 @@ export default function RCAForm() {
         </div>
       </div>
       {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
+    </div>
     </div>
   );
 }

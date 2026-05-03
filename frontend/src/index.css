@@ -9,6 +9,166 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Custom datetime picker */
+input[type="datetime-local"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) saturate(3) hue-rotate(180deg);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(180deg);
+  background-color: #1E3A5F;
+  transform: scale(1.1);
+}
+
+/* Custom select dropdown */
+select {
+  color-scheme: dark;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%233B82F6' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px !important;
+  transition: all 0.2s ease;
+}
+
+select option {
+  background-color: #0D1521;
+  color: #94A3B8;
+  padding: 10px;
+}
+
+select:focus {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 3px #3B82F620;
+}
+
+/* Glassmorphism effect on form fields focus */
+input:focus, textarea:focus, select:focus {
+  background-color: #111827 !important;
+  box-shadow: 0 0 0 3px #3B82F615, inset 0 1px 0 #ffffff08;
+}
+
+/* Smooth transition on all inputs */
+input, textarea, select {
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* React DatePicker Dark Theme */
+.react-datepicker {
+  background-color: #0D1521 !important;
+  border: 1px solid #1E2D45 !important;
+  border-radius: 8px !important;
+  font-family: 'DM Mono', monospace !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  animation: fadeIn 0.15s ease !important;
+}
+
+.react-datepicker__header {
+  background-color: #080C14 !important;
+  border-bottom: 1px solid #1E2D45 !important;
+  border-radius: 8px 8px 0 0 !important;
+  padding: 12px !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker-time__header {
+  color: #94A3B8 !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.1em !important;
+}
+
+.react-datepicker__day {
+  color: #64748B !important;
+  border-radius: 4px !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 12px !important;
+  transition: all 0.15s ease !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #1E3A5F !important;
+  color: #3B82F6 !important;
+  transform: scale(1.1) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #1E3A5F !important;
+  color: #3B82F6 !important;
+  border: 1px solid #3B82F644 !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__day--today {
+  color: #F59E0B !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__day--disabled {
+  color: #1E2D45 !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #475569 !important;
+  transition: border-color 0.15s !important;
+}
+
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: #3B82F6 !important;
+}
+
+.react-datepicker__time-container {
+  border-left: 1px solid #1E2D45 !important;
+}
+
+.react-datepicker__time {
+  background-color: #0D1521 !important;
+}
+
+.react-datepicker__time-list-item {
+  color: #64748B !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 12px !important;
+  transition: all 0.15s ease !important;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: #1E3A5F !important;
+  color: #3B82F6 !important;
+}
+
+.react-datepicker__time-list-item--selected {
+  background-color: #1E3A5F !important;
+  color: #3B82F6 !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+.react-datepicker-popper {
+  animation: fadeIn 0.2s ease !important;
+  z-index: 9999 !important;
+}
+
+.react-datepicker__month-container {
+  padding: 8px !important;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }

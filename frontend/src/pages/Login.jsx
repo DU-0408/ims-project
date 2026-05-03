@@ -95,6 +95,7 @@ export default function Login() {
               style={inputStyle}
               onFocus={e => e.target.style.borderColor = "#3B82F6"}
               onBlur={e => e.target.style.borderColor = "#1E2D45"}
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
             />
           </div>
 
@@ -109,6 +110,7 @@ export default function Login() {
                 style={inputStyle}
                 onFocus={e => e.target.style.borderColor = "#3B82F6"}
                 onBlur={e => e.target.style.borderColor = "#1E2D45"}
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
               />
             </div>
           )}
@@ -124,6 +126,7 @@ export default function Login() {
               style={inputStyle}
               onFocus={e => e.target.style.borderColor = "#3B82F6"}
               onBlur={e => e.target.style.borderColor = "#1E2D45"}
+              onKeyDown={e => e.key === "Enter" && handleSubmit()}
             />
           </div>
 
