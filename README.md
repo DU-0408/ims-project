@@ -69,7 +69,14 @@ That's it! The following happens automatically:
 | Backend Swagger UI | http://localhost:8000/docs |
 | Health Check | http://localhost:8000/health |
 
-### Simulating a Failure Event
+### Running Tests
+```bash
+cd backend
+pip install pytest pytest-asyncio
+pytest tests/ -v
+```
+
+### Simulating a Failure Event Manually
 
 ```bash
 cd scripts
