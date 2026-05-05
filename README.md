@@ -17,16 +17,17 @@
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| Backend | Python + FastAPI | Async REST API |
-| Task Queue | asyncio.Queue | In-memory backpressure buffer |
-| RDBMS | PostgreSQL | Work Items, RCA records (source of truth) |
-| NoSQL | MongoDB | Raw signal audit log |
-| Cache | Redis | Debounce keys + dashboard hot-path |
-| Frontend | React + Vite | Incident dashboard UI |
-| Reverse Proxy | Nginx | Serve frontend + proxy API calls |
-| Containerization | Docker Compose | Full stack orchestration |
+| Layer        | Technology              | Purpose                        |
+|--------------|-------------------------|--------------------------------|
+| Backend      | Python + FastAPI        | Async REST API + WebSocket     |
+| Task Queue   | asyncio.Queue           | In-memory backpressure buffer  |
+| RDBMS        | PostgreSQL              | Work Items, RCA, Users         |
+| NoSQL        | MongoDB                 | Raw signal audit log           |
+| Cache        | Redis                   | Debounce keys + dashboard cache|
+| Frontend     | React + Vite            | Incident dashboard UI          |
+| Reverse Proxy| Nginx                   | Serve frontend + proxy API     |
+| Containers   | Docker Compose          | Full stack orchestration       |
+| Metrics      | Prometheus + Grafana    | Real-time observability        |
 
 ---
 
@@ -68,6 +69,8 @@ That's it! The following happens automatically:
 | Frontend Dashboard | http://localhost:3000 |
 | Backend Swagger UI | http://localhost:8000/docs |
 | Health Check | http://localhost:8000/health |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3001 |
 
 ### Running Tests
 ```bash
@@ -88,6 +91,8 @@ This script simulates:
 1. **RDBMS Outage** — sends 150 signals for `POSTGRES_PRIMARY` → creates 1 P0 Work Item
 2. **MCP Host Failure** — sends 50 signals for `MCP_HOST_01` → creates 1 P1 Work Item
 
+> **Note:** The seed script also runs automatically on `docker compose up --build`. Manual execution is only needed to simulate additional failure events.
+
 ### Stopping the Application
 ```bash
 # Stop but keep data
@@ -101,7 +106,7 @@ docker compose down -v
 
 ## How Backpressure is Handled
 
-The system uses a **two-layer approach** to handle bursts of up to 10,000 signals/sec without crashing:
+The system uses a **three-layer approach** to handle bursts of up to 10,000 signals/sec without crashing:
 
 **Layer 1 — asyncio In-Memory Queue**
 
@@ -220,9 +225,9 @@ ims-project/
       /ingestion    # Queue and background worker
       /models       # PostgreSQL models
       /workflow     # State machine and alerting strategies
-      /tests
-        test_rca_validation.py
-        test_state_machine.py
+    /tests
+      test_rca_validation.py
+      test_state_machine.py
     main.py
     requirements.txt
     Dockerfile
