@@ -95,6 +95,19 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
+  
+  seed:
+    build:
+      context: ./scripts
+    container_name: ims_seed
+    environment:
+      BASE_URL: http://backend:8000/api/v1
+      AUTH_URL: http://backend:8000/auth/login
+      USERNAME: admin
+      PASSWORD: admin1234
+    depends_on:
+      - backend
+    restart: "no"
 
 volumes:
   postgres_data:

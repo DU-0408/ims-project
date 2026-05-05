@@ -7,10 +7,14 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from contextlib import asynccontextmanager
 from app.core.dependencies import get_current_user
-from app.core.database import engine, Base
+from app.core.database import engine, Base, AsyncSessionLocal
 from app.ingestion.worker import worker_loop, metrics_loop
 from app.api import signals, incidents, health, auth, websocket
 from prometheus_fastapi_instrumentator import Instrumentator
+from app.core.security import hash_password
+from app.models.postgres_models import User
+from sqlalchemy import select
+import uuid
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -19,6 +23,27 @@ async def lifespan(app: FastAPI):
     # Create DB tables on startup
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    
+    # Create default user if not exists
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(User).where(User.username == "admin")
+        )
+        existing_user = result.scalar_one_or_none()
+        if not existing_user:
+            default_user = User(
+                id=uuid.uuid4(),
+                username="admin",
+                email="admin@ims.com",
+                hashed_password=hash_password("admin1234"),
+                is_active=True
+            )
+            session.add(default_user)
+            await session.commit()
+            print("[STARTUP] Default user created — username: admin, password: admin1234")
+        else:
+            print("[STARTUP] Default user already exists")
+
 
     # Start background tasks
     asyncio.create_task(worker_loop())

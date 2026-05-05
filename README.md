@@ -47,6 +47,20 @@ cd ims-project
 docker compose up --build
 ```
 
+That's it! The following happens automatically:
+- All services start (PostgreSQL, MongoDB, Redis, Backend, Frontend, Prometheus, Grafana)
+- Database tables are created
+- Default admin user is created
+- Seed script runs and populates sample incidents
+
+### Default Credentials
+
+| Service | URL | Username | Password |
+|---|---|---|---|
+| IMS Dashboard | http://localhost:3000 | admin | admin1234 |
+| Grafana | http://localhost:3001 | admin | admin |
+| Swagger UI | http://localhost:8000/docs | — | — |
+
 ### Access Points
 
 | Service | URL |
@@ -66,6 +80,15 @@ python seed_events.py
 This script simulates:
 1. **RDBMS Outage** — sends 150 signals for `POSTGRES_PRIMARY` → creates 1 P0 Work Item
 2. **MCP Host Failure** — sends 50 signals for `MCP_HOST_01` → creates 1 P1 Work Item
+
+### Stopping the Application
+```bash
+# Stop but keep data
+docker compose down
+
+# Stop and wipe all data (fresh start)
+docker compose down -v
+```
 
 ---
 

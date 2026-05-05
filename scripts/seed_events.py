@@ -1,13 +1,12 @@
 import asyncio
 import httpx
 import random
+import os
 
-BASE_URL = "http://localhost:8000/api/v1"
-AUTH_URL = "http://localhost:8000/auth/login"
-
-# Credentials — change these to match your registered user
-USERNAME = "admin"
-PASSWORD = "admin1234"
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000/api/v1")
+AUTH_URL = os.getenv("AUTH_URL", "http://localhost:8000/auth/login")
+USERNAME = os.getenv("USERNAME", "admin")
+PASSWORD = os.getenv("PASSWORD", "admin1234")
 
 RDBMS_SIGNALS = [
     "Connection timeout",
@@ -77,13 +76,20 @@ async def main():
     print("=" * 50)
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        # Check backend is reachable
-        try:
-            res = await client.get("http://localhost:8000/health")
-            health = res.json()
-            print(f"\n[SEED] Backend health: {health['status']}")
-        except Exception:
-            print("[ERROR] Backend is not reachable. Make sure it is running.")
+        # Wait for backend to be ready
+        print("\n[SEED] Waiting for backend to be ready...")
+        for attempt in range(10):
+            try:
+                res = await client.get("http://backend:8000/health")
+                if res.status_code == 200:
+                    health = res.json()
+                    print(f"[SEED] Backend health: {health['status']}")
+                    break
+            except Exception:
+                print(f"[SEED] Backend not ready, retrying in 3s... ({attempt + 1}/10)")
+                await asyncio.sleep(3)
+        else:
+            print("[ERROR] Backend never became ready. Exiting.")
             return
 
         # Authenticate
