@@ -6,8 +6,8 @@ BASE_URL = "http://localhost:8000/api/v1"
 AUTH_URL = "http://localhost:8000/auth/login"
 
 # Credentials — change these to match your registered user
-USERNAME = "testuser"
-PASSWORD = "test1234"
+USERNAME = "admin"
+PASSWORD = "admin1234"
 
 RDBMS_SIGNALS = [
     "Connection timeout",

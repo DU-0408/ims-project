@@ -4,6 +4,7 @@ import client from "../api/client";
 import { StatusBadge, PriorityBadge } from "../components/StatusBadge";
 import Toast from "../components/Toast";
 import useToast from "../components/useToast";
+import { formatLocalDate } from "../utils/formatDate";
 
 const StatCard = ({ label, value, color }) => (
   <div style={{ backgroundColor: "#0D1521", border: "1px solid #1E2D45", borderRadius: "8px", padding: "20px 24px", flex: 1 }}>
@@ -156,7 +157,7 @@ export default function Dashboard() {
                   <td style={{ padding: "14px 16px", fontSize: "13px", fontFamily: "'DM Mono', monospace", color: "#94A3B8" }}>{incident.component_id}</td>
                   <td style={{ padding: "14px 16px" }}><StatusBadge status={incident.status} /></td>
                   <td style={{ padding: "14px 16px", fontSize: "13px", fontFamily: "'DM Mono', monospace", color: "#64748B" }}>{incident.signal_count}</td>
-                  <td style={{ padding: "14px 16px", fontSize: "12px", fontFamily: "'DM Mono', monospace", color: "#475569" }}>{new Date(incident.start_time).toLocaleString()}</td>
+                  <td style={{ padding: "14px 16px", fontSize: "12px", fontFamily: "'DM Mono', monospace", color: "#475569" }}>{formatLocalDate(incident.start_time)}</td>
                   <td style={{ padding: "14px 16px", fontSize: "12px", fontFamily: "'DM Mono', monospace", color: incident.mttr_minutes ? "#10B981" : "#334155" }}>
                     {incident.mttr_minutes ? `${incident.mttr_minutes.toFixed(1)}m` : "—"}
                   </td>

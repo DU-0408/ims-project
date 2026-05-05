@@ -9,6 +9,13 @@ from app.core.retry import with_retry
 from pymongo.errors import ServerSelectionTimeoutError, AutoReconnect
 import uuid
 from app.core.websocket_manager import manager
+from app.core.metrics import (
+    signals_ingested_total,
+    work_items_created_total,
+    queue_size_gauge,
+    signal_processing_duration
+)
+import time
 
 # Throughput counter
 signal_counter = {"count": 0}
@@ -45,6 +52,7 @@ async def _increment_signal_count(work_item_id: str):
 async def process_signal(signal: dict):
     component_id = signal["component_id"]
     signal_counter["count"] += 1
+    start_time = time.time()
 
     # --- Save raw signal to MongoDB (always) ---
     initial_signal = {**signal, "received_at": datetime.utcnow()}
@@ -96,6 +104,18 @@ async def process_signal(signal: dict):
         "work_item_id": work_item_id
     })
 
+    # Track metrics
+    signals_ingested_total.labels(
+        component_type=component_type,
+        priority=str(priority).replace("PriorityEnum.", "")
+    ).inc()
+    work_items_created_total.labels(
+        priority=str(priority).replace("PriorityEnum.", "")
+    ).inc()
+
+    # Track processing duration
+    signal_processing_duration.observe(time.time() - start_time)
+
 
 async def worker_loop():
     print("[WORKER] Background signal worker started")
@@ -114,5 +134,6 @@ async def metrics_loop():
     while True:
         await asyncio.sleep(5)
         rate = signal_counter["count"] / 5
+        queue_size_gauge.set(signal_queue.qsize())
         print(f"[METRICS] Throughput: {rate:.2f} signals/sec | Queue size: {signal_queue.qsize()}")
         signal_counter["count"] = 0

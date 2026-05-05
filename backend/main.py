@@ -10,6 +10,7 @@ from app.core.dependencies import get_current_user
 from app.core.database import engine, Base
 from app.ingestion.worker import worker_loop, metrics_loop
 from app.api import signals, incidents, health, auth, websocket
+from prometheus_fastapi_instrumentator import Instrumentator
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -35,6 +36,9 @@ app = FastAPI(
     },
     swagger_ui_parameters={"persistAuthorization": True},
 )
+
+# Prometheus metrics
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

@@ -4,6 +4,7 @@ import client from "../api/client";
 import { StatusBadge, PriorityBadge } from "../components/StatusBadge";
 import Toast from "../components/Toast";
 import useToast from "../components/useToast";
+import { formatLocalDate } from "../utils/formatDate";
 
 export default function IncidentDetail() {
   const { id } = useParams();
@@ -45,8 +46,8 @@ export default function IncidentDetail() {
     { label: "Incident ID", value: incident.id },
     { label: "Component", value: incident.component_id },
     { label: "Signal Count", value: incident.signal_count },
-    { label: "Started", value: new Date(incident.start_time).toLocaleString() },
-    { label: "Last Updated", value: new Date(incident.updated_at).toLocaleString() },
+    { label: "Started", value: formatLocalDate(incident.start_time) },
+    { label: "Last Updated", value: formatLocalDate(incident.updated_at) },
     { label: "MTTR", value: incident.mttr_minutes ? `${incident.mttr_minutes.toFixed(2)} min` : "Pending" },
   ];
 
@@ -116,7 +117,7 @@ export default function IncidentDetail() {
                     <td style={{ padding: "12px 16px" }}>
                       <span style={{ fontSize: "10px", color: "#EF4444", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em" }}>{signal.severity}</span>
                     </td>
-                    <td style={{ padding: "12px 16px", fontSize: "11px", fontFamily: "'DM Mono', monospace", color: "#475569" }}>{signal.timestamp}</td>
+                    <td style={{ padding: "12px 16px", fontSize: "11px", fontFamily: "'DM Mono', monospace", color: "#475569" }}>{formatLocalDate(signal.timestamp)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -1,3 +1,4 @@
+from app.core.metrics import active_websocket_connections   
 from fastapi import WebSocket
 from typing import List
 import json
@@ -9,12 +10,14 @@ class WebSocketManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
-        print(f"[WS] Client connected. Total connections: {len(self.active_connections)}")
+        active_websocket_connections.inc()
+        print(f"[WS] Client connected. Total: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-        print(f"[WS] Client disconnected. Total connections: {len(self.active_connections)}")
+            active_websocket_connections.dec()
+        print(f"[WS] Client disconnected. Total: {len(self.active_connections)}")
 
     async def broadcast(self, message: dict):
         if not self.active_connections:
