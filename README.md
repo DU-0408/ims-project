@@ -128,20 +128,25 @@ Attempting to close an incident without a complete RCA returns a `400 Bad Reques
 
 ## API Endpoints
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| POST | `/api/v1/signals` | Ingest a signal |
-| GET | `/api/v1/incidents` | List all incidents (Redis cached) |
-| GET | `/api/v1/incidents/{id}` | Get incident + raw signals |
-| PATCH | `/api/v1/incidents/{id}/status` | Advance incident state |
-| POST | `/api/v1/incidents/{id}/rca` | Submit RCA |
-| GET | `/health` | Health check for all services |
+| Method | Endpoint | Purpose | Auth Required |
+|---|---|---|---|
+| POST | `/auth/register` | Register a new user | No |
+| POST | `/auth/login` | Login and get JWT token | No |
+| POST | `/api/v1/signals` | Ingest a signal | Yes |
+| GET | `/api/v1/incidents` | List all incidents (Redis cached) | Yes |
+| GET | `/api/v1/incidents/{id}` | Get incident + raw signals | Yes |
+| PATCH | `/api/v1/incidents/{id}/status` | Advance incident state | Yes |
+| POST | `/api/v1/incidents/{id}/rca` | Submit RCA | Yes |
+| GET | `/health` | Health check for all services | No |
+| WS | `/ws/incidents` | WebSocket for real-time updates | No |
 
 ---
 
 ## Non-Functional Features (Bonus)
 
 ### Security
+- **JWT Authentication** — All API endpoints protected with JSON Web Tokens. Register and login via `/auth/register` and `/auth/login`. Tokens expire after 60 minutes.
+- **Password Hashing** — bcrypt used for secure password storage. No plain text passwords stored anywhere.
 - **Rate Limiting** — `slowapi` token bucket limiter on the ingestion endpoint (1000 req/min per IP) prevents abuse and cascading failures
 - **CORS** — Restricted to known frontend origin only
 - **Input Validation** — All API payloads validated via Pydantic models before processing
@@ -152,13 +157,24 @@ Attempting to close an incident without a complete RCA returns a `400 Bad Reques
 - **Structured Logging** — All worker events, alerts, and errors are prefixed and logged consistently
 
 ### Resilience
+- **Retry Logic with Exponential Backoff** — All database writes (MongoDB + PostgreSQL) automatically retry up to 3 times with increasing delays (0.5s, 1s, 2s) on failure
 - **Debouncing** — 100 signals for the same component within 10 seconds create only 1 Work Item, preventing alert storms
 - **Queue Overflow Protection** — Signals are dropped gracefully when queue is full instead of crashing the process
 - **Async Throughout** — Every database operation is fully async, no blocking calls anywhere in the stack
 
+### Real-time Updates
+- **WebSocket Connection** — Dashboard maintains a persistent WebSocket connection to the backend for instant updates
+- **Auto-reconnect** — WebSocket automatically reconnects after 3 seconds if connection drops
+- **Live Notifications** — Toast notifications appear instantly when new incidents are created or statuses change
+- **LIVE Indicator** — Green pulsing indicator in dashboard header shows WebSocket connection status
+
+### Testing
+- **14 Unit Tests** — pytest test suite covering RCA validation and state machine transitions
+- **Run tests:** `cd backend && pytest tests/ -v`
+
 ### Data Separation
 - **MongoDB** — Raw signal audit log (high volume, schema-flexible)
-- **PostgreSQL** — Work Items and RCA records (structured, transactional)
+- **PostgreSQL** — Work Items, RCA records, and User accounts (structured, transactional)
 - **Redis** — Debounce keys (TTL-based) + dashboard cache (hot-path reads)
 
 ---
@@ -174,14 +190,17 @@ ims-project/
       /ingestion    # Queue and background worker
       /models       # PostgreSQL models
       /workflow     # State machine and alerting strategies
+      /tests
+        test_rca_validation.py
+        test_state_machine.py
     main.py
     requirements.txt
     Dockerfile
   /frontend
     /src
-      /api          # Axios client
+      /api          # Axios client with JWT interceptor
       /components   # StatusBadge, Toast, useToast
-      /pages        # Dashboard, IncidentDetail, RCAForm
+      /pages        # Login, Dashboard, IncidentDetail, RCAForm
     nginx.conf
     Dockerfile
   /scripts
